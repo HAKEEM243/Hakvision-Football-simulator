@@ -6676,7 +6676,7 @@ function coachLiveCtrl(){const sh={def:"Défensif",bal:"Équilibré",att:"Offens
   return `<div class="lctl"><div class="grid4">${Object.entries(MENT).map(([k,m])=>`<button class="btn sm ${S.coach.ment===k?"gold":""}" data-m="ment:${k}">${sh[k]||m.n}</button>`).join("")}</div>
   <div class="grid4"><button class="btn sm" data-m="subs">🔁 Chgts (${5-S.coach.subs})</button><button class="btn sm" data-m="tacm">🎛️ Plan</button><button class="btn sm" data-m="speed">${M.fast?"▶ ×1":"⏩ ×3"}</button><button class="btn sm" data-m="finish">⏭ Fin</button></div></div>`;}
 function coachSubs(){
-  if(S.coach.subs>=5){toast("Tu as déjà fait tes 5 changements.");return;}const wasLive=M.phase==="live"&&!M.paused;if(wasLive)pause();
+  if(S.coach.subs>=5){toast("Tu as déjà fait tes 5 changements.");return;}const wasLive=M.phase==="live"&&!M.paused;if(wasLive)pause();if(M.phase==="live")M.modalPause=true;
   const bench=benchPlayers().filter(p=>!injOf(p)&&!suspOf(p)&&!M.used.includes(pkey(p))&&!M.xi.some(x=>pkey(x)===pkey(p)));let out=null;
   const draw=()=>{openModal(`<span class="eyebrow">Changement · ${M.min}'</span><h2 class="h2">${out?"Qui <em>entre</em> ?":"Qui <em>sort</em> ?"}</h2>
     <div class="sublist">${(out?bench:M.xi).map(p=>`<button data-sub="${pkey(p)}"><span class="pname">${facePlayer(p.name,p.pid!=null?PL[p.pid].nat:TEAMS[S.me.club].country)}<span><b>${esc(p.name)}</b><small>${esc(POS[p.pos].name)} · GEN ${p.ovr}</small></span></span><span class="fitb"><i style="width:${fitOf(p)}%"></i></span></button>`).join("")}</div>
@@ -7408,7 +7408,7 @@ const tacOf=()=>Object.assign({press:1,tempo:1,width:1},S.coach.tac||{});
 function tacFx(){const t=tacOf();let a=1,d=1,fat=0;Object.keys(TAC).forEach(k=>{a*=TAC[k].a[t[k]];d*=TAC[k].d[t[k]];fat+=TAC[k].fat[t[k]];});return {a,d,fat};}
 function tacCard(){const t=tacOf();return `<div class="card"><span class="eyebrow">Consignes tactiques</span><div class="tacs">${Object.entries(TAC).map(([k,T])=>`<div><small>${T.n}</small><div class="chips">${T.o.map((l,i)=>`<button data-tac="${k}:${i}" class="${t[k]===i?"on":""}">${l}</button>`).join("")}</div></div>`).join("")}</div>
   <p class="small muted" style="margin-top:8px">Pressing haut et tempo rapide = plus de buts des deux côtés, mais des joueurs plus fatigués.</p></div>`;}
-function tacModal(){const t=tacOf();const wasLive=M&&M.phase==="live"&&!M.paused;if(wasLive)pause();
+function tacModal(){const t=tacOf();const wasLive=M&&M.phase==="live"&&!M.paused;if(wasLive){pause();M.modalPause=true;}
   openModal(`<span class="eyebrow">Consignes en direct</span><h2 class="h2" style="margin:6px 0 10px">Ajuste <em>ton plan</em></h2><div class="tacs">${Object.entries(TAC).map(([k,T])=>`<div><small>${T.n}</small><div class="chips">${T.o.map((l,i)=>`<button data-tacm="${k}:${i}" class="${t[k]===i?"on":""}">${l}</button>`).join("")}</div></div>`).join("")}</div><button class="btn gold block" style="margin-top:12px" id="tacX">OK</button>`);
   modal.querySelectorAll("[data-tacm]").forEach(b=>b.onclick=()=>{const [k,i]=b.dataset.tacm.split(":");S.coach.tac=Object.assign(tacOf(),{[k]:+i});coachRecalc(M.min);say(`Consigne : ${TAC[k].n.toLowerCase()} ${TAC[k].o[+i].toLowerCase()}.`,"key");tacModal();});
   document.getElementById("tacX").onclick=()=>{closeModal();if(wasLive)resume();};}
@@ -8359,7 +8359,7 @@ function resume(){M.paused=false;clearTimeout(M.timer);M.timer=setTimeout(tick,M
 function pause(){M.paused=true;clearTimeout(M.timer);}
 function finishNow(){if(!M||M.phase!=="live")return;pause();M.turbo=false;const fx=M.fx;for(let m=M.min+1;m<=90+M.added;m++){M.min=m;if(M.coach&&M.cmom)M.cmom=[];try{stepMinute(m,false);}catch(e){}}if(fx.ko&&M.us===M.them&&M.pensWin==null)resolvePens(M.coach?null:(M.onPitch?null:null));M.cap=null;M.phase="ft";say("Coup de sifflet final.");updateSB();renderMatch();}
 function tick(){
-  if(!M||M.paused)return;M.min++;const m=M.min;
+  if(!M||M.paused)return;M.idle=0;M.min++;const m=M.min;
   if(!M.onPitch&&M.enter&&m===M.enter&&M.subOut==null){M.onPitch=true;say(`Entrée en jeu de ${S.me.name} !`,"key");}
   updateSB();
   if(M.coach&&M.cmom&&M.cmom.includes(m)){M.cmom=M.cmom.filter(x=>x!==m);pause();M.timer=setTimeout(openCoachMoment,M.fast?200:600);return;}
@@ -8428,6 +8428,7 @@ function applyMyMatch(fx,m){
 function liveLoop(){
   if(!M||M.phase!=="live"){if(M)M.raf=null;return;}
   if(!MO&&!GV&&M.lp&&document.getElementById("lv")){stepLive();if(M.fast)stepLive();drawLive();if(M.lp.mode==="play"){M.st.poss[(M.lp.car?M.lp.car.team:M.lp.lastTeam)==="us"?0:1]++;}if(++M.pf%20===0)updateStats();}
+  if(!MO&&!GV&&!TM&&modal.hidden){M.idle=(M.idle||0)+1;if(M.lp&&M.lp.seq){if(M.idle>1200){M.idle=0;lvAbortSeq();}}else if(M.idle>300){M.idle=0;M.paused=false;resume();}}else M.idle=0;
   M.raf=requestAnimationFrame(liveLoop);
 }
 window.addEventListener("resize",()=>{if(M&&document.getElementById("lv")){sizeLive();sizeAtmo();}if(MO&&!MO.done){sizeCanvas();drawMoment();}});
@@ -8794,10 +8795,11 @@ function lvKoAI(){const lp=M.lp;lp.kT--;const all=[...lp.us,...lp.them];all.forE
   const ready=lp.kT<=0&&(all.every(p=>Math.hypot(p.x-p.kx,p.y-p.ky)<1.2)||lp.kT<-160);
   if(ready){lp.mode="play";const k=lp.kicker;lp.car=k;k.hold=8;lp.lastTeam=k.team;if(lp.seq&&lp.seq.scored)lvSeqDone(lp.seq);}
 }
+function lvAbortSeq(){const lp=M&&M.lp;if(!lp||!lp.seq)return;const sq=lp.seq;lp.seq=null;if(sq.onGoal){const f=sq.onGoal;sq.onGoal=null;try{f();}catch(e){}}lp.fl=null;lp.car=null;lp.net=null;lp.mode="play";lvKickoff(sq.team==="us"?"them":"us",true);lp.kT=20;if(sq.onDone){try{sq.onDone();}catch(e){}}}
 function stepLive(){const lp=M.lp;if(!lp)return;lp.t++;const b=lp.ball;if(lp.mode==="play"){const pc=lp.pc||(lp.pc={us:1,them:1});pc[lp.car?lp.car.team:lp.lastTeam]++;}
   if(M.min>45&&!lp.swap&&lp.mode!=="cele"&&!lp.seq){lp.swap=true;lvKickoff(lvOpp(lp.first),true);lp.kT=25;}
   if(lp.koReq&&!lp.seq){lvKickoff(lvOpp(lp.koReq),true);lp.kT=30;lp.koReq=null;}
-  if(lp.seq&&++lp.seq.t>1400){const sq=lp.seq;if(sq.onGoal){const f=sq.onGoal;sq.onGoal=null;f();}lvKickoff(sq.team==="us"?"them":"us",true);lp.seq=null;if(sq.onDone)sq.onDone();}
+  if(lp.seq&&++lp.seq.t>700){lvAbortSeq();return;}
   if(lp.fl){const f=lp.fl;f.k++;const u=Math.min(1,f.k/f.n);b.x=f.x0+(f.x1-f.x0)*u;b.y=f.y0+(f.y1-f.y0)*u;b.z=Math.max(0,f.z0+(f.z1-f.z0)*u+f.peak*4*u*(1-u));b.spin+=.35;
     if(f.check)f.check(b);if(u>=1&&lp.fl===f){lp.fl=null;if(f.end)f.end();}}
   else if(lp.car){const c=lp.car;b.x=c.x+lvDir(c.team)*.75;b.y=c.y+.3;b.z=0;b.spin+=c.sp*.8;}
@@ -9112,7 +9114,7 @@ const modal=document.getElementById("modal");
 let toastT=null;
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3800);}
 function openModal(html){modal.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;modal.hidden=false;}
-function closeModal(){modal.hidden=true;modal.innerHTML="";delete modal.dataset.club;}
+function closeModal(){modal.hidden=true;modal.innerHTML="";delete modal.dataset.club;try{if(M&&M.modalPause&&M.phase==="live"){M.modalPause=false;if(M.paused&&!MO&&!GV&&!TM)resume();}}catch(e){}}
 modal.addEventListener("click",e=>{if(e.target===modal)closeModal();});
 
 /* =================== VISAGES, ÉCUSSONS, MAILLOTS =================== */
