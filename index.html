@@ -730,6 +730,11 @@ body{background:
 .nci{min-width:0}.nci b{display:block;font-size:14px;color:#fff}.nci small{color:var(--muted);font-size:11.5px;display:block;line-height:1.35}
 .ncrow .btn.sm{min-width:44px;padding:9px 10px}
 .ncnt{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px}.ncnt span{text-align:center;padding:6px 2px;background:#ffffff0a;font:600 12px var(--font-mono);color:#cfd5e6}.ncnt span.ok{background:#3ddc8426;color:#8ff5bd}.ncnt small{display:block;font-size:9.5px;color:var(--muted);text-transform:uppercase}
+
+.toty{margin-top:12px}.totyp{position:relative;margin-top:8px;height:340px;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(0deg,#2c8a3f 0 30px,#277c37 30px 60px);border:1px solid #ffffff22}
+.totyp:before{content:"";position:absolute;inset:8px;border:1.5px solid #ffffff55;border-radius:4px}.totyp:after{content:"";position:absolute;left:8px;right:8px;top:50%;border-top:1.5px solid #ffffff44}
+.totyd{position:absolute;transform:translate(-50%,-50%);text-align:center;width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:1}.totyd i{display:inline-block;font-style:normal;font-weight:800;font-size:12px;min-width:30px;padding:5px 0;border-radius:50%;border:2px solid;color:#fff;text-shadow:0 1px 2px #000;box-shadow:0 2px 6px #0008}
+.totyd b{display:block;font-size:11px;color:#fff;text-shadow:0 1px 3px #000;margin-top:2px;line-height:1.1}.totyd small{display:block;font-size:9px;color:#ffffffbb;text-shadow:0 1px 2px #000}.totyd.me i{border-color:#ffd23f;box-shadow:0 0 0 3px #ffd23f66}
 </style>
 <div id="app"></div>
 <div id="match" class="match" hidden></div>
@@ -6176,7 +6181,7 @@ function ceremony(name,list,key,cash,attr,boost,n){
 }
 function leagueAwards(lid){
   const me=S.me;const inLg=p=>teamLeague(pClub(p))===lid;const rk=seasonRanking(inLg).filter(x=>x.id==="me"||teamLeague(x.club)===lid);
-  const name=LG[lid].n;
+  const name=LG[lid].n;totyRun(lid);
   const sc0=Object.entries(S.w.ps).filter(([id])=>inLg(PL[id])).map(([id,s])=>({id:+id,g:s[1]}));if(me.ss.apps)sc0.push({id:"me",g:me.ss.gL||0});sc0.sort((a,b)=>b.g-a.g);
   const young=rk.find(x=>x.id==="me"?me.age<=21:pAge(PL[x.id])<=21);const nm=x=>x.id==="me"?me.name:PL[x.id].name;const cl=x=>x.id==="me"?me.club:pClub(PL[x.id]);
   const rows=[];if(rk[0])rows.push({t:"Joueur de la saison",name:rk[0].name,club:rk[0].club,me:rk[0].id==="me"});if(sc0[0]&&sc0[0].g)rows.push({t:`Meilleur buteur (${sc0[0].g} buts)`,name:nm(sc0[0]),club:cl(sc0[0]),me:sc0[0].id==="me"});if(young)rows.push({t:"Meilleur jeune",name:young.name,club:young.club,me:young.id==="me"});
@@ -7463,6 +7468,22 @@ const diffA=()=>[1.06,1,.965,.93][diffI()];
 const diffD=()=>[.94,1,1.04,1.09][diffI()];
 const diffConf=()=>[.7,1,1.2,1.5][diffI()];
 const diffBudget=()=>[1.3,1,.85,.7][diffI()];
+
+/* =================== ÉQUIPE TYPE DE LA SAISON =================== */
+const TOTY_SLOTS=[["GB",50,91],["LAT",12,63],["DC",37,69],["DC",63,69],["LAT",88,63],["MIL",22,42],["MIL",50,46],["MIL",78,42],["AIL",16,17],["BU",50,11],["AIL",84,17]];
+function totyBuild(filter){
+  const rk=seasonRanking(filter);const used=new Set();const out=[];
+  TOTY_SLOTS.forEach(([g,x,y])=>{const c=rk.find(r=>{if(used.has(r.id))return false;const pos=r.id==="me"?S.me.pos:PL[r.id].pos;return POS[pos].grp===g;});
+    if(c){used.add(c.id);const pos=c.id==="me"?S.me.pos:PL[c.id].pos;out.push({id:c.id,name:c.name,pos,club:c.club,nat:c.nat,me:c.id==="me",x,y,sc:c.id==="me"?ovrMe():pOvr(PL[c.id])});}});
+  return out;}
+function totyRun(lid){try{const Y=S.w.year,h=S.w.hist[Y];h.toty=h.toty||{};
+  const xi=totyBuild(p=>teamLeague(pClub(p))===lid);if(xi.length<9)return;h.toty[lid]=xi.map(({id,...r})=>r);
+  const me=S.me,name=LG[lid].n;const mine=xi.find(x=>x.me);
+  if(mine){me.car.awards.push(`Équipe type ${name} ${Y}/${String((Y+1)%100).padStart(2,"0")}`);me.rep=clamp(me.rep+2,0,100);me.money+=4000;addMsg("Dans l'équipe type !",`Tu es sélectionné dans l'équipe type de la saison en ${name}.`,"award");addNews(`${me.name} figure dans l'équipe type de ${name}.`);}
+  else if(me.club&&S.mode==="coach"){const n=xi.filter(x=>x.club===me.club).length;if(n){addMsg("Équipe type de la saison",`${n} joueur${n>1?"s":""} de ton club ${n>1?"figurent":"figure"} dans l'équipe type de ${name} : ${xi.filter(x=>x.club===me.club).map(x=>x.name).join(", ")}.`,"award");S.coach.morale=clamp(S.coach.morale+n,20,95);}}
+  const w=totyBuild(null);if(w.length>=9&&lid===(userLeagueId()||lid))h.toty.world=w.map(({id,...r})=>r);}catch(e){}}
+function totyHtml(xi,title){if(!xi||!xi.length)return "";
+  return `<div class="toty"><span class="eyebrow">${esc(title)}</span><div class="totyp">${xi.map(p=>`<div class="totyd ${p.me?"me":""}" style="left:${p.x}%;top:${p.y}%"><i style="background:${p.club?TEAMS[p.club].color:"#555"};border-color:${p.club?TEAMS[p.club].accent:"#999"}">${p.sc}</i><b>${esc(p.name.split(" ").slice(-1)[0])}</b><small>${p.club?esc(TEAMS[p.club].short):""}</small></div>`).join("")}</div></div>`;}
 
 /* =================== META : SUCCÈS (BitLife), DIPLÔMES, MORAL DES JOUEURS (FM), RÉGLAGES, ACCUEIL JOUEUR =================== */
 /* ----- succès ----- */
@@ -9679,7 +9700,7 @@ function viewWorld(){
         ${Object.entries(h.cup).filter(([c])=>visLeagues().some(l=>LG[l].c===c)).map(([c,w])=>`<div class="crow small2"><span>🏆 ${esc(S.w.cups[c]?S.w.cups[c].name:LG[COUNTRY_LG[c][0]].cup)}</span><span class="tclub" style="justify-content:flex-end">${crest(w,"sm")}<b>${esc(TEAMS[w].short)}</b></span></div>`).join("")}
         ${conts.map(([k,w])=>`<div class="crow small2"><span>★ ${esc(CONT_DEF[k]?CONT_DEF[k].name:"Coupe intercontinentale")}</span><span class="tclub" style="justify-content:flex-end">${crest(w,"sm")}<b>${esc(TEAMS[w].short)}</b></span></div>`).join("")}
         ${intl.map(t=>`<div class="crow small2"><span>🌍 ${esc(t.name)}</span><span class="tclub" style="justify-content:flex-end">${crest(t.winner,"sm")}<b>${esc(NATIONS[t.winner].name)}</b></span></div>`).join("")}
-        ${aw.map(a=>`<div class="crow small2"><span>🏅 ${esc(a.name)}</span><span style="text-align:right"><b>${esc(a.top[0].name)}</b><br><small class="muted">${esc(a.top.slice(1,3).map(x=>x.name).join(", "))}</small></span></div>`).join("")}</div>`:'<p class="muted small" style="margin-top:6px">Saison en cours. Les titres apparaîtront ici.</p>'}</div>`;}).join("");}
+        ${aw.map(a=>`<div class="crow small2"><span>🏅 ${esc(a.name)}</span><span style="text-align:right"><b>${esc(a.top[0].name)}</b><br><small class="muted">${esc(a.top.slice(1,3).map(x=>x.name).join(", "))}</small></span></div>`).join("")}</div>${(()=>{const t=h.toty||{};const l=visLeagues().find(x=>t[x]);return (l?totyHtml(t[l],"Équipe type · "+LG[l].n):"")+(t.world?totyHtml(t.world,"Équipe type mondiale"):"");})()}`:'<p class="muted small" style="margin-top:6px">Saison en cours. Les titres apparaîtront ici.</p>'}</div>`;}).join("");}
   if(WT==="news")body=`<div class="card"><span class="eyebrow">Actualité du football mondial</span><div class="news" style="margin-top:10px">${S.w.news.slice(0,40).map(n=>`<div><span>${fmtDate(n.d,false)}</span><p>${esc(n.t)}</p></div>`).join("")||'<p class="muted small">Pas encore d\'actualité.</p>'}</div></div>`;
   return `<section class="view"><div class="chips">${tabs.map(([k,l])=>`<button data-wt="${k}" class="${WT===k?"on":""}">${l}</button>`).join("")}</div>${body}</section>`;
 }
