@@ -13,6 +13,14 @@ Jeu de carrière de football (joueur ou entraîneur) en une seule page web : vra
 - FIFA Manager / LFP Manager : finances, bilan de saison, vie privée (couple, enfants, bourse, immobilier, loisirs).
 - BitLife / New Star Soccer : événements à choix, succès, mini-jeux d'entraînement.
 
+## Images et attribution
+
+- **Joueurs** : 100 portraits réels sous licence CC BY, CC BY-SA, CC0 ou domaine public, dont Messi, Cristiano Ronaldo, Neymar, Mbappé, Vinícius Júnior et Haaland. Les photos sont dans `assets/player-portraits/`; leur correspondance avec les noms du jeu est dans `assets/player-portraits.js`.
+- **Écussons** : les 99 écussons déjà embarqués dans le jeu sont conservés; l’écusson d’Estudiantes de La Plata a été ajouté pour compléter la sélection de 100 clubs.
+- **Crédits** : consulter [la page des crédits](./credits.html), `assets/player-photo-credits.csv` et `assets/club-crest-credits.csv`.
+- Les portraits s’affichent automatiquement pour les joueurs sélectionnés; les autres joueurs conservent le visage généré du jeu et peuvent toujours recevoir une photo personnalisée via l’éditeur.
+- Une licence photo ne confère pas automatiquement les droits à l’image/personnalité des joueurs. Les écussons sont des marques; les droits de réutilisation des écussons préexistants sont signalés comme non vérifiés dans le fichier de crédits. Vérifier les autorisations nécessaires avant une distribution commerciale ou sur une boutique d’applications.
+
 ## Déploiement
 
-Site statique : `index.html` + `manifest.webmanifest` + `sw.js` + icônes. Compatible GitHub Pages et Cloudflare Pages (répertoire de sortie : racine, aucune commande de build).
+Site statique : `index.html` + `credits.html` + le dossier `assets/` + `manifest.webmanifest` + `sw.js` + icônes. Compatible GitHub Pages et Cloudflare Pages (répertoire de sortie : racine, aucune commande de build).
