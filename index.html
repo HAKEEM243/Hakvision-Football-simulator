@@ -8796,7 +8796,14 @@ function applyMyMatch(fx,m){
 /* ----- live 2D pitch ----- */
 function liveLoop(){
   if(!M||M.phase!=="live"){if(M)M.raf=null;return;}
-  if(!MO&&!GV&&M.lp&&document.getElementById("lv")){stepLive();if(M.fast)stepLive();drawLive();if(M.lp.mode==="play"){M.st.poss[(M.lp.car?M.lp.car.team:M.lp.lastTeam)==="us"?0:1]++;}if(++M.pf%20===0)updateStats();}
+  if(!MO&&!GV&&M.lp&&document.getElementById("lv")){
+    try{const now=performance.now();const dt=Math.min(120,now-(M.lastT||now));M.lastT=now;let acc=(M.acc||0)+dt,n=0;
+      while(acc>=16.5&&n<5){acc-=16.5;n++;stepLive();if(M.fast)stepLive();if(M.lp.mode==="play"){M.st.poss[(M.lp.car?M.lp.car.team:M.lp.lastTeam)==="us"?0:1]++;}}
+      M.acc=acc>33?33:acc;
+      try{drawLive();}catch(e){M.drawErr=(M.drawErr||0)+1;console.error(e);if(M.drawErr>=3&&S.gfx!=="2d"){S.gfx="2d";const c3=document.getElementById("lv3");if(c3)c3.style.display="none";try{toast("Vue 3D indisponible : passage en 2D.");}catch(x){}}}
+      if(++M.pf%20===0)updateStats();
+    }catch(e){console.error(e);M.simErr=(M.simErr||0)+1;if(M.simErr>2&&M.lp&&M.lp.mode!=="play"){try{M.lp.seq=null;M.lp.setp=null;M.lp.fl=null;M.lp.mode="play";}catch(x){}}}
+  }
   if(M.lp&&(M.lp.mode==="replay"||M.lp.mode==="pso"))M.idle=0;
   if(!MO&&!GV&&!TM&&modal.hidden){M.idle=(M.idle||0)+1;if(M.lp&&M.lp.seq){if(M.idle>1200){M.idle=0;lvAbortSeq();}}else if(M.idle>300){M.idle=0;M.paused=false;resume();}}else M.idle=0;
   M.raf=requestAnimationFrame(liveLoop);
@@ -9623,7 +9630,7 @@ const lv3On=()=>lv3Ok()&&(S&&S.gfx!=="2d")&&!!document.getElementById("lv3");
 const wx=x=>(x-50)*H3.k,wz=y=>(y-32)*H3.k;
 /* qualité : haute (ombres 2048), moyenne (ombres 1024), basse (sans ombres). Ajustée automatiquement si l'appareil rame. */
 const Q3=["low","mid","high"],Q3N={low:"Basse",mid:"Moyenne",high:"Haute"};
-function h3Q(){if(S&&S.q3&&Q3.includes(S.q3))return S.q3;if(G3.q)return G3.q;const cores=navigator.hardwareConcurrency||4,coarse=window.matchMedia&&matchMedia("(pointer:coarse)").matches;G3.q=cores<=2?"low":(coarse||cores<8)?"mid":"high";return G3.q;}
+function h3Q(){if(S&&S.q3&&Q3.includes(S.q3))return S.q3;if(G3.q)return G3.q;const cores=navigator.hardwareConcurrency||4,coarse=window.matchMedia&&matchMedia("(pointer:coarse)").matches;G3.q=coarse||cores<=4?"low":cores<8?"mid":"high";return G3.q;}
 function h3Tex(w,h,fn){const c=document.createElement("canvas");c.width=w;c.height=h;const g=c.getContext("2d");fn(g,w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;}
 const H3C={mat:{},tex:{},geo:null};
 const hsh=s=>hashStr(String(s||"x"));
@@ -9884,7 +9891,7 @@ function drawLive3D(){const cv=document.getElementById("lv"),c3=document.getElem
   const R=lp.r3;const w=cv.clientWidth||360,h=cv.clientHeight||260;const r=lv3Renderer(c3);if(!R.sized||R.sized.w!==w||R.sized.h!==h||R.canvas!==c3){r.setPixelRatio(h3PR());r.setSize(w,h,false);R.sized={w,h};R.canvas=c3;R.camera=new THREE.PerspectiveCamera(28,w/h,.3,600);}
   const now=performance.now(),t=now/1000,k=H3.k;
   // auto-qualité : si l'appareil rame, on baisse
-  const F=G3.fps;if(F.last){const dt=now-F.last;if(dt<200){F.acc+=dt;F.n++;}}F.last=now;if(F.n>=90){const avg=F.acc/F.n;F.n=0;F.acc=0;if(avg>30&&now>F.cool&&!(S&&S.q3)){const q=h3Q();const nq=q==="high"?"mid":q==="mid"?"low":null;if(nq){h3SetQ(nq,R);F.cool=now+6000;}}}
+  const F=G3.fps;if(F.last){const dt=now-F.last;if(dt<400){F.acc+=dt;F.n++;}}F.last=now;if(F.n>=45){const avg=F.acc/F.n;F.n=0;F.acc=0;if(avg>28&&now>F.cool){const q=h3Q();const nq=q==="high"?"mid":q==="mid"?"low":null;if(nq){S.q3=null;h3SetQ(nq,R);F.cool=now+4000;}else if(avg>55){S.gfx="2d";if(c3)c3.style.display="none";try{toast("3D trop lourde pour cet appareil : vue 2D activée.");}catch(x){}F.slow=1;}}}
   // joueurs
   R.humans.forEach(u=>{const p=u.p;u.root.position.x=wx(p.x);u.root.position.z=wz(p.y);
     const dx=p.x-u.last.x,dz=p.y-u.last.y;const mv=dx*dx+dz*dz>1e-5;let tgt=mv?Math.atan2(dx,dz):Math.atan2(wx(lp.ball.x)-wx(p.x),wz(lp.ball.y)-wz(p.y));
