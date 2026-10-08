@@ -13,6 +13,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>html,body{margin:0;background:#06070b}</style>
+<script src="./assets/player-portraits.js"></script>
 </head><body>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -7766,6 +7767,7 @@ function setModal(){const dsel=diffI();const sound=S.sound!==false,vib=S.vib!==f
   ${(()=>{const b=bakInfo();return b?`<button class="btn block" style="margin-top:8px" data-meta="bakgo">↩ Revenir à la sauvegarde de secours (${esc(fmtDate(b.day,false))})</button>`:"";})()}
   <p class="small muted" style="margin:6px 0 8px">Ta partie est enregistrée automatiquement dans ce navigateur. Exporte-la pour la garder en sécurité ou la reprendre sur un autre appareil.</p>
   <div class="row"><button class="btn" style="flex:1" data-meta="exp">⬇ Exporter</button><label class="btn" style="flex:1;text-align:center;cursor:pointer">⬆ Importer<input type="file" id="impf" accept=".json,application/json" hidden></label></div>
+  <a class="btn block" style="margin-top:10px" href="./credits.html" target="_blank" rel="noopener">📷 Crédits des portraits et écussons</a>
   <button class="btn block" style="margin-top:14px" data-close>Fermer</button>`);
   const f=document.getElementById("impf");if(f)f.onchange=()=>{const file=f.files&&f.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{try{const o=JSON.parse(rd.result);if(!o||o.v!==4||!o.w)throw new Error("fichier invalide");S=o;ensureCustom();save();closeModal();TAB="home";render();toast("Sauvegarde importée !");}catch(e){toast("Fichier de sauvegarde invalide.");}};rd.readAsText(file);};}
 function exportSave(){try{const blob=new Blob([JSON.stringify(S)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="hakvision-sauvegarde-"+(S.me.name||"partie").replace(/\W+/g,"-").toLowerCase()+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);toast("Sauvegarde exportée.");}catch(e){toast("Export impossible sur cet appareil.");}}
@@ -9665,7 +9667,7 @@ const TONE_MIX={d:{d:.9,m:.1},m:{m:.7,l:.18,d:.12},l:{l:.82,m:.12,d:.06},fr:{l:.
 function faceIdx(name,pool){const h=hashStr(name);const mix=TONE_MIX[POOL_TONE[pool]||"m"];let r=(h%1000)/1000,tone=Object.keys(mix)[0];for(const [t,w] of Object.entries(mix)){if(r<w){tone=t;break;}r-=w;}
   const ids=FACE_TONE.map((t,i)=>t===tone?i:-1).filter(i=>i>=0);return ids[(h>>>10)%ids.length];}
 const faceImg=(i,cls="")=>`<img class="face ${cls}" src="${FACES[i][0]}" alt="" loading="lazy">`;
-const facePlayer=(name,nat)=>S&&S.photos&&S.photos[name]?`<img class="face sm" src="${S.photos[name]}" alt="">`:faceImg(faceIdx(name,(NATIONS[nat]&&NATIONS[nat].pool)||"fr"),"sm");
+const facePlayer=(name,nat)=>{const pool=(NATIONS[nat]&&NATIONS[nat].pool)||"fr",fallback=FACES[faceIdx(name,pool)][0],user=S&&S.photos&&S.photos[name],asset=window.HV_PLAYER_PHOTOS&&window.HV_PLAYER_PHOTOS[name],src=user||asset;return src?`<img class="face sm" style="object-fit:cover" src="${src}" alt="${esc(name)}" loading="lazy" onerror="this.onerror=null;this.src='${fallback}'">`:faceImg(faceIdx(name,pool),"sm");};
 let PH_TARGET=null;
 function pickPlayerPhoto(name){PH_TARGET=name;let inp=document.getElementById("phIn");if(!inp){inp=document.createElement("input");inp.type="file";inp.accept="image/*";inp.id="phIn";inp.hidden=true;document.body.appendChild(inp);
   inp.onchange=()=>{const file=inp.files&&inp.files[0];inp.value="";if(!file||!PH_TARGET)return;const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const W=80,H=96,cv=document.createElement("canvas");cv.width=W;cv.height=H;const g=cv.getContext("2d");const sc=Math.max(W/img.width,H/img.height);g.drawImage(img,(W-img.width*sc)/2,(H-img.height*sc)/2*.5,img.width*sc,img.height*sc);
@@ -10220,4 +10222,5 @@ render();playIntro(()=>0);
 </script>
 
 <script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{scope:"./"}).catch(()=>{}));</script>
+<script src="./assets/crest-overrides.js"></script>
 </body></html>
