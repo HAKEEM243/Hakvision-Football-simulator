@@ -1,5 +1,5 @@
 {
-  "name": "hakvision-football",
+  "name": "hakvision-football-simulator",
   "compatibility_date": "2026-10-01",
   "assets": { "directory": "./public" }
 }
