@@ -14,6 +14,10 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>html,body{margin:0;background:#06070b}</style>
 <script src="./assets/player-portraits.js"></script>
+<link rel="stylesheet" href="./assets/academy.css">
+<script src="./assets/legends-data.js"></script>
+<script src="./assets/legend-photo-map.js"></script>
+<script src="./assets/academy-enhancements.js"></script>
 </head><body>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6931,7 +6935,7 @@ function viewTeam(){
   const nm=ctxNat();const toggle=me.club&&C.nat&&!S.pending?`<div class="chips"><button data-tv="club" class="${!nm?"on":""}">${esc(TEAMS[me.club].short)}</button><button data-tv="nat" class="${nm?"on":""}">${NATIONS[C.nat].flag} ${esc(NATIONS[C.nat].name)}</button></div>`:"";
   const xi=xiPlayers();const bench=benchPlayers();const nat=p=>p.pid!=null?PL[p.pid].nat:nm?C.nat:TEAMS[me.club].country;
   const row=(p,inXI)=>{const k=pkey(p);const oop=inXI&&POS[p.pos].grp!==p.g;const bad=injOf(p)||suspOf(p);return `<button class="prow ${C.sel===k?"sel":""} ${bad?"inj":""}" data-xsel="${k}" ${bad?"disabled":""}><span class="pname">${facePlayer(p.name,nat(p))}<span><b>${esc(p.name)}</b><small>${esc(POS[p.pos].name)}${oop?` · ⚠️ joue ${GRP_NAME[p.g].toLowerCase()}`:""}${injOf(p)?" · blessé":suspOf(p)?" · suspendu ("+suspOf(p)+")":""}${p.pid!=null?"":" · formé au club"}</small></span></span><span class="fitb"><i style="width:${fitOf(p)}%"></i></span><b class="gen">${p.ovr}</b>${p.pid!=null?`<span class="pinfo" data-psheet="${p.pid}">ⓘ</span>`:""}</button>`;};
-  return `<section class="view">${toggle}${nm?`<div class="card"><div class="between"><span class="small">${NATIONS[C.nat].flag} <b>${C.ncall?C.ncall.length:0}</b> convoqués</span><button class="btn sm gold" data-tab="ncall">📋 Liste des convoqués</button></div></div>`:""}${tacticPitch(xi)}
+  return `<section class="view">${me.club&&!nm?academyLauncher():""}${toggle}${nm?`<div class="card"><div class="between"><span class="small">${NATIONS[C.nat].flag} <b>${C.ncall?C.ncall.length:0}</b> convoqués</span><button class="btn sm gold" data-tab="ncall">📋 Liste des convoqués</button></div></div>`:""}${tacticPitch(xi)}
   <div class="card"><span class="eyebrow">${nm?"Sélection · "+esc(NATIONS[C.nat].name)+" · ":""}Système de jeu</span><div class="chips" style="margin-top:8px">${FORM_ORDER.map(f=>`<button data-form="${f}" class="${C.formation===f?"on":""}">${f}</button>`).join("")}</div>
     <span class="eyebrow" style="display:block;margin-top:12px">État d'esprit</span><div class="chips" style="margin-top:8px">${Object.entries(MENT).filter(([k])=>k!=="all").map(([k,m])=>`<button data-ment="${k}" class="${C.ment===k?"on":""}">${m.n}</button>`).join("")}</div>
     <div class="between" style="margin-top:12px"><span class="small">Force du onze : <b style="color:var(--gold)">${Math.round(xiStrength(xi))}</b> · moral ${Math.round(C.morale)}</span><button class="btn sm" data-act="autoxi">Compo auto</button></div></div>${tacCard()}
@@ -8450,15 +8454,15 @@ function trainWeekly(){const C=S.coach;const t=C.train||"tact";
 function trainMods(){const t=S.coach.train||"tact";return {s:t==="tact"?.6:0,a:t==="att"?1.08:1,d:t==="def"?.92:1};}
 function trainCard(){const C=S.coach;const t=C.train||"tact";return `<div class="card"><span class="eyebrow">Entraînement de la semaine</span><div class="chips" style="margin-top:8px">${Object.entries(TRAIN).map(([k,[l]])=>`<button data-train2="${k}" class="${t===k?"on":""}">${l}</button>`).join("")}</div><p class="muted small" style="margin-top:6px">${esc(TRAIN[t][1])}</p></div>`;}
 /* centre de formation */
-function youthIntake(){const me=S.me;if(!me.club)return;const c=TEAMS[me.club];const pool=poolOfCountry(c.country);const base=tStr(me.club)-24;
-  const kids=Array.from({length:RI(3,5)},()=>{const pos=pick(["GB","DC","DC","LAT","MDC","MC","MOC","AIL","AIL","BU","BU"]);const o=clamp(Math.round(base+R(-4,8)),40,75);return {name:genName(pool),pos,ovr:o,age:RI(15,17),pot:clamp(o+RI(8,24),50,94),nat:c.country};});
-  const keep=(S.coach.yth||[]).filter(y=>!y.signed&&y.age<=18).map(y=>({...y,age:y.age+1,ovr:Math.min(y.pot,y.ovr+RI(2,7))}));S.coach.yth=[...kids,...keep].sort((a,b)=>b.pot-a.pot).slice(0,16);addMsg("Nouvelle génération du centre de formation",`Ton centre de formation présente ${kids.length} nouveaux jeunes talents (${S.coach.yth.length} en tout, les non-signés progressent). Le meilleur potentiel : ${S.coach.yth[0].name}.`,"youth",{y:1});STOP=true;}
+function youthIntake(){const me=S.me;if(!me.club)return;const c=TEAMS[me.club];
+  const kids=Array.from({length:RI(3,5)},()=>academyMakeYouth(c.country,RI(9,18)));
+  const keep=(S.coach.yth||[]).filter(y=>!y.signed&&y.age<=18).map(y=>({...y,age:y.age+1,ovr:Math.min(y.pot,y.ovr+RI(2,7))}));S.coach.yth=[...kids,...keep].sort((a,b)=>b.pot-a.pot).slice(0,24);addMsg("Nouvelle génération du centre de formation",`Ton centre de formation présente ${kids.length} nouveaux jeunes talents (${S.coach.yth.length} en tout, les non-signés progressent). Le meilleur potentiel : ${S.coach.yth[0].name}.`,"youth",{y:1});STOP=true;}
 function youthView(){const k=S.coach.yth||[];const st=v=>"★".repeat(Math.round(clamp((v-45)/10,1,5)));
   openModal(`<span class="eyebrow">Centre de formation · ${esc(TEAMS[S.me.club].name)}</span><h2 class="h2">Nouvelle <em>génération</em></h2>
-    <div class="calx" style="margin-top:10px">${k.map((y,i)=>`<div class="crow small2"><span class="pname">${faceImg(faceIdx(y.name,poolOfCountry(y.nat)),"sm")}<span><b>${esc(y.name)}</b><br><small class="muted">${esc(POS[y.pos].name)} · ${y.age} ans · GEN ${y.ovr} · potentiel <span class="stars">${st(y.pot)}</span></small></span></span>${y.signed?'<span class="status on">Signé</span>':`<button class="btn sm gold" data-ysign="${i}">Signer</button>`}</div>`).join("")||'<p class="muted small">Aucun jeune pour le moment.</p>'}</div>
+    <div class="calx" style="margin-top:10px">${k.map((y,i)=>`<div class="crow small2"><span class="pname">${faceImg(faceIdx(y.name,poolOfCountry(y.nat)),"sm")}<span><b>${esc(y.name)}</b><br><small class="muted">${esc(POS[y.pos].name)} · ${y.age} ans · GEN ${y.ovr} · potentiel <span class="stars">${st(y.pot)}</span></small></span></span>${y.signed?'<span class="status on">Signé</span>':y.age>=16?`<button class="btn sm gold" data-ysign="${i}">Signer</button>`:'<span class="status">En formation</span>'}</div>`).join("")||'<p class="muted small">Aucun jeune pour le moment.</p>'}</div>
     <button class="btn block" style="margin-top:12px" data-close>Fermer</button>`);}
-function signYouth(i){const y=S.coach.yth[i];if(!y||y.signed)return;y.signed=true;const id=PL.length;const c={id,name:y.name,pos:y.pos,ovr:y.ovr,by:S.w.year-y.age,nat:NATIONS[y.nat]?y.nat:"fra"};S.w.custom=S.w.custom||[];S.w.custom.push(c);PL.push({...c,team0:null,custom:true});
-  S.w.po[id]=y.ovr;S.w.pc[id]=S.me.club;S.w.ctr=S.w.ctr||{};S.w.ctr[id]={wage:Math.round(youthWage(S.me.club)/10)*10,until:S.w.year+3};S.w.ypot=S.w.ypot||{};S.w.ypot[id]=y.pot;refreshSquads();addNews(`${y.name} (${y.age} ans) signe son premier contrat avec ${TEAMS[S.me.club].name}.`);save();youthView();render();}
+function signYouth(i){const y=S.coach.yth[i];if(!y||y.signed)return;if(y.age<16){toast("La signature professionnelle est disponible à partir de 16 ans.");return;}y.signed=true;const id=PL.length;const c={id,name:y.name,pos:y.pos,ovr:y.ovr,by:S.w.year-y.age,nat:NATIONS[y.nat]?y.nat:"fra"};S.w.custom=S.w.custom||[];S.w.custom.push(c);PL.push({...c,team0:null,custom:true});
+  S.w.po[id]=y.ovr;S.w.pc[id]=S.me.club;S.w.ctr=S.w.ctr||{};S.w.ctr[id]={wage:Math.round(youthWage(S.me.club)/10)*10,until:S.w.year+3};S.w.ypot=S.w.ypot||{};S.w.ypot[id]=y.pot;refreshSquads();addNews(`${y.name} (${y.age} ans) signe son premier contrat avec ${TEAMS[S.me.club].name}.`);save();if(TAB!=="academy")youthView();render();}
 /* événements du vestiaire */
 Object.assign(EVENTS,{
   cPlaytime:{tag:"Vestiaire",valid:()=>isCoach()&&!!S.me.club,make:()=>{const b=benchPlayers().filter(p=>p.pid!=null&&p.ovr>=tStr(S.me.club)-6);return b.length?{p:pick(b).name}:null;},title:d=>`${d.p} veut plus de temps de jeu`,text:d=>`${d.p} frappe à la porte de ton bureau : « Coach, je mérite de jouer plus. Sinon, je préfère partir. »`,
@@ -10248,7 +10252,7 @@ function render(){
   if(!S){renderIntro();return;}
   if(S.me.retired){renderLegacy();return;}
   const me=S.me;const unread=S.inbox.filter(m=>!m.read).length;
-  const coach=isCoach();const views=coach?{ncall:viewNatCall,home:viewCoachHome,player:viewCoachProfile,team:viewTeam,market:viewMarket,agenda:viewAgenda,world:viewWorld,life:viewLife,inbox:viewInbox,editor:viewEditor}:{home:viewHome,player:viewPlayer,agenda:viewAgenda,world:viewWorld,life:viewLife,inbox:viewInbox,editor:viewEditor,mercato:viewMercato};
+  const coach=isCoach();const views=coach?{ncall:viewNatCall,home:viewCoachHome,player:viewCoachProfile,team:viewTeam,academy:viewAcademy,legends:viewLegends,market:viewMarket,agenda:viewAgenda,world:viewWorld,life:viewLife,inbox:viewInbox,editor:viewEditor}:{home:viewHome,player:viewPlayer,legends:viewLegends,agenda:viewAgenda,world:viewWorld,life:viewLife,inbox:viewInbox,editor:viewEditor,mercato:viewMercato};
   app.innerHTML=`
   <header class="top"><div class="wrap">
     <button class="avatar" data-tab="player" style="width:40px;height:40px;border-radius:10px;padding:0;border:0" aria-label="Mon joueur">${myAvatar()}</button>
@@ -10258,7 +10262,7 @@ function render(){
   </div></header>
   <main><div class="wrap">${(views[TAB]||viewHome)()}</div></main>
   <nav class="nav"><div class="wrap">
-    ${(coach?[["home","Accueil"],["team","Équipe"],["market","Mercato"],["agenda","Agenda"],["world","Monde"],["life","Vie"]]:[["home","Accueil"],["player","Joueur"],["agenda","Agenda"],["world","Monde"],["life","Vie"]]).map(([k,l])=>`<button data-tab="${k}" class="${TAB===k||(["editor","mercato"].includes(TAB)&&k==="player")||(coach&&["player","editor","ncall"].includes(TAB)&&k==="team")?"on":""}" aria-label="${l}">${ICONS[k==="team"?"player":k]}<span>${l}</span>${k==="home"&&(S.event||S.press||S.pending)&&TAB!=="home"?'<i class="badge"></i>':""}${!coach&&k==="player"&&me.pts>=3&&TAB!=="player"?'<i class="badge" style="background:var(--gold)"></i>':""}</button>`).join("")}
+    ${(coach?[["home","Accueil"],["team","Équipe"],["legends","Légendes"],["market","Mercato"],["agenda","Agenda"],["world","Monde"],["life","Vie"]]:[["home","Accueil"],["player","Joueur"],["legends","Légendes"],["agenda","Agenda"],["world","Monde"],["life","Vie"]]).map(([k,l])=>`<button data-tab="${k}" class="${TAB===k||(["editor","mercato"].includes(TAB)&&k==="player")||(coach&&["player","editor","ncall","academy"].includes(TAB)&&k==="team")?"on":""}" aria-label="${l}">${ICONS[k==="team"||k==="legends"?"player":k]}<span>${l}</span>${k==="home"&&(S.event||S.press||S.pending)&&TAB!=="home"?'<i class="badge"></i>':""}${!coach&&k==="player"&&me.pts>=3&&TAB!=="player"?'<i class="badge" style="background:var(--gold)"></i>':""}</button>`).join("")}
   </div></nav>${fmContinueBar()}`;
   if(TAB==="editor")bindEditor();
   if(TAB==="life")accordionize();
@@ -10624,6 +10628,11 @@ document.addEventListener("click",e=>{
   if(d.train2){S.coach.train=d.train2;save();render();return;}
   if(d.youth){const mm=S.inbox.find(x=>x.kind==="youth"&&!x.done);if(mm){mm.done=true;mm.read=true;}youthView();return;}
   if(d.ysign!=null){signYouth(+d.ysign);return;}
+  if(d.acadpick){academySelect(d.acadpick);return;}
+  if(d.acadobserve!=null){academyObserve(+d.acadobserve);return;}
+  if(d.acaddiscover!=null){academyDiscover();return;}
+  if(d.legendsenable!=null){activateLegends();return;}
+  if(d.legendsmarket!=null){TAB="market";MKT="buy";render();return;}
   if(d.boost){const [id,v]=d.boost.split(":");boostPlayer(+id,+v);return;}
   if(d.act==="cpcreate"){createPlayer();return;}
   if(d.vw){vwAct(d.vw);return;}
@@ -10657,6 +10666,7 @@ document.addEventListener("click",e=>{
   if(d.spin){spin(d.spin);return;}
 });
 document.addEventListener("change",e=>{
+  if(e.target.matches("[data-acadgroup]")){academySetGroup(e.target.value);return;}
   if(e.target.id==="pnat"&&INTRO){INTRO.nat=e.target.value;return;}
   if(e.target.id==="cnat"&&INTRO){INTRO.cnat=e.target.value;return;}
   if(e.target.id==="wlg"){WLG=e.target.value;render();return;}

@@ -1,26 +1,32 @@
 # Hak Vision Football Simulator
 
-Jeu de carrière de football (joueur ou entraîneur) en une seule page web : vrais clubs, vrais joueurs, championnats et coupes du monde entier, matchs en 2D style retransmission TV, finances, vie privée, succès…
+Jeu de carrière de football en une page web : carrière joueur ou entraîneur, clubs et championnats, matchs animés, finances et progression.
 
-- **Jouer en ligne** : https://hakeem243.github.io/Hakvision-Football-simulator/ (après activation de GitHub Pages sur la branche `main`, dossier racine)
-- **Sur téléphone** : ouvrir le lien puis « Ajouter à l'écran d'accueil » pour l'installer comme une application.
-- La sauvegarde est enregistrée dans le navigateur ; export et import disponibles dans les Réglages.
+- **Version Cloudflare Workers** : https://hakvision-football-simulator.arenalse22.workers.dev/
+- **Version GitHub Pages** : https://hakeem243.github.io/Hakvision-Football-simulator/
+- **Sur téléphone** : ouvrir le lien puis « Ajouter à l’écran d’accueil » pour l’installer comme une application.
+- Les sauvegardes restent dans le navigateur ; export et import sont disponibles dans les Réglages.
 
-## Contenu
+## Nouveautés de cette version
 
-- Deux carrières : joueur (dès 16 ans, centre de formation, sélection, Ballon d'Or) ou entraîneur (club et sélection nationale).
-- Football Manager : fiche joueur détaillée, staff, consignes tactiques, moral individuel, rapport de l'adjoint, mercato complet.
-- FIFA Manager / LFP Manager : finances, bilan de saison, vie privée (couple, enfants, bourse, immobilier, loisirs).
-- BitLife / New Star Soccer : événements à choix, succès, mini-jeux d'entraînement.
+- **150 portraits réels** de joueurs, dont Messi, Cristiano Ronaldo, Neymar, Mbappé, Vinícius Júnior et Haaland. Les fichiers sont dans `assets/player-portraits/`; le script `assets/player-portraits.js` relie les noms du jeu aux photos.
+- **15 légendes** avec portrait, poste, nationalité, âge de pointe et notes de 97 à 99 : Ronaldo Nazário (R9), Zidane, Ronaldinho, Maradona, Pelé, Cruyff, Beckenbauer, Eusébio, Garrincha, Platini, George Best, Maldini, Puskás, Yashin et Thierry Henry. En carrière entraîneur, l’onglet **Légendes** permet de les ajouter aux joueurs libres du mercato.
+- **Centre de formation enrichi** : filtres par groupe U10, U12, U15, U18, Réserve et équipe première; fiches de jeunes avec taille, poids, pied préféré, moyenne pondérée et attributs techniques, mentaux et physiques. L’observation simulée d’un match complet recrute automatiquement un prospect si sa note finale atteint **7/10**.
+- **102 écussons de clubs** documentés, dont des écussons séparés d’Estudiantes de La Plata, Botafogo et Al Ahli.
+- La navigation conserve l’avatar personnalisé de Hakeem Jr ; les portraits réels s’affichent dans les fiches et listes de joueurs.
 
-## Images et attribution
+## Images, sources et attribution
 
-- **Joueurs** : 100 portraits réels sous licence CC BY, CC BY-SA, CC0 ou domaine public, dont Messi, Cristiano Ronaldo, Neymar, Mbappé, Vinícius Júnior et Haaland. Les photos sont dans `assets/player-portraits/`; leur correspondance avec les noms du jeu est dans `assets/player-portraits.js`.
-- **Écussons** : les 99 écussons déjà embarqués dans le jeu sont conservés; l’écusson d’Estudiantes de La Plata a été ajouté pour compléter la sélection de 100 clubs.
-- **Crédits** : consulter [la page des crédits](./credits.html), `assets/player-photo-credits.csv` et `assets/club-crest-credits.csv`.
-- Les portraits s’affichent automatiquement pour les joueurs sélectionnés; les autres joueurs conservent le visage généré du jeu et peuvent toujours recevoir une photo personnalisée via l’éditeur.
-- Une licence photo ne confère pas automatiquement les droits à l’image/personnalité des joueurs. Les écussons sont des marques; les droits de réutilisation des écussons préexistants sont signalés comme non vérifiés dans le fichier de crédits. Vérifier les autorisations nécessaires avant une distribution commerciale ou sur une boutique d’applications.
+La page `credits.html` réunit les crédits, liens et licences des portraits, des légendes et des écussons. Les manifestes source sont dans `assets/player-photo-credits.csv`, `assets/legend-photo-credits.csv` et `assets/club-crest-credits.csv`. Les licences ne règlent pas automatiquement les droits à l’image des joueurs ou les marques des clubs ; vérifier les autorisations nécessaires avant toute diffusion commerciale.
+
+Pour régénérer les crédits, le cache hors ligne et la version statique servie par Cloudflare :
+
+```sh
+python3 scripts/build_asset_credits.py
+python3 scripts/build_service_worker.py
+python3 scripts/sync_public.py
+```
 
 ## Déploiement
 
-Site statique : `index.html` + `credits.html` + le dossier `assets/` + `manifest.webmanifest` + `sw.js` + icônes. Compatible GitHub Pages et Cloudflare Pages (répertoire de sortie : racine, aucune commande de build).
+Le jeu utilise Cloudflare Workers Static Assets, configuré par `wrangler.jsonc` pour servir le dossier `public/`. Le synchroniseur copie le code et les médias testés de la racine dans `public/`. GitHub Pages peut également servir la version statique depuis la racine.

@@ -1,0 +1,79 @@
+.academy-launch{display:flex;justify-content:space-between;align-items:center;gap:12px;border-color:#eac65b55;background:linear-gradient(120deg,#123334,#0d2728)}
+.academy-launch h3{margin:3px 0 2px;font-size:19px}.academy-launch p{margin:0;max-width:370px}
+.academy-view .acad-title,.legend-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.academy-view .acad-title h2,.legend-heading h2{margin:3px 0}
+.acad-filters{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:8px}
+.acad-filters label{display:grid;gap:5px;min-width:0;color:var(--muted);font-size:10px;font-family:var(--font-mono);letter-spacing:.06em;text-transform:uppercase}
+.acad-filters select{width:100%;min-width:0;padding:9px 8px;border:1px solid var(--line);border-radius:8px;background:#091b1c;color:var(--text);font:500 12px var(--font-body)}
+.acad-filters select:disabled{opacity:1;color:var(--text)}
+.acad-columns{display:grid;grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);gap:10px;align-items:start}
+.acad-roster h3{margin:4px 0 0;font-size:18px}
+.acad-roster-list{display:grid;gap:6px;margin-top:10px}
+.acad-roster-row{display:flex;align-items:center;gap:9px;width:100%;padding:7px;border:1px solid #ffffff12;border-radius:10px;background:#091c1d;color:var(--text);text-align:left;cursor:pointer}
+.acad-roster-row.selected{border-color:var(--gold);background:#182923}
+.acad-roster-name{display:grid;gap:3px;min-width:0;flex:1}
+.acad-roster-name b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.acad-roster-name small{color:var(--muted);font-size:10px;line-height:1.35}
+.acad-roster-row>strong{color:var(--gold);font:700 14px var(--font-display)}
+.academy-face{display:block;flex:none;width:92px;height:116px;border-radius:10px;object-fit:cover;background:#123334}
+.academy-face-sm{display:block;flex:none;width:34px;height:42px;border-radius:7px;object-fit:cover;background:#123334}
+.acad-profile{min-width:0}
+.acad-profile-head{display:flex;align-items:flex-start;gap:12px}
+.acad-player-main{min-width:0;flex:1}
+.acad-player-main h2{margin:3px 0;font:800 25px var(--font-display);color:var(--sand);line-height:1.05}
+.acad-player-main>p{margin:0 0 8px;color:var(--muted);font-size:12px}
+.acad-facts{display:flex;flex-wrap:wrap;gap:5px}
+.acad-facts span{padding:4px 6px;border:1px solid #ffffff12;border-radius:6px;background:#ffffff06;color:var(--text);font-size:10px}
+.acad-average{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:6px;margin-top:12px}
+.acad-average>div{display:grid;gap:2px;padding:8px 9px;border:1px solid #ffffff15;border-radius:9px;background:#081a1b}
+.acad-average strong{color:var(--gold);font:800 21px var(--font-display)}
+.acad-average span{color:var(--muted);font-size:9px;line-height:1.3}
+.acad-skills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:11px}
+.acad-stat-card{min-width:0;padding:9px;border:1px solid #ffffff13;border-radius:9px;background:#091b1c}
+.acad-stat-card h3{margin:0 0 7px;color:var(--sand);font:700 14px var(--font-display)}
+.acad-stat{display:grid;grid-template-columns:minmax(0,1fr) 30px 16px;gap:5px;align-items:center;margin:6px 0;font-size:9px}
+.acad-stat>span{overflow:hidden;color:var(--muted);text-overflow:ellipsis;white-space:nowrap}
+.acad-stat>i{height:4px;overflow:hidden;border-radius:4px;background:#ffffff15}
+.acad-stat>i>b{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#3da983,#bbdf71)}
+.acad-stat>strong{text-align:right;color:var(--text);font-size:10px}
+.acad-observe{display:grid;gap:8px;margin-top:12px;padding:12px;border:1px solid #eac65b66;border-radius:10px;background:linear-gradient(120deg,#282411,#142222)}
+.acad-observe p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+.acad-observe p b{color:var(--gold)}
+.acad-observe small{color:var(--muted);font-size:10px;line-height:1.4}
+.acad-observation-result{padding:7px 8px;border-radius:7px;background:#ffffff09}
+.acad-training-note{margin:12px 0 0;padding:9px;border-left:2px solid var(--gold);color:var(--muted);font-size:11px}
+.acad-note p{margin:7px 0;color:var(--muted);font-size:12px;line-height:1.45}
+.acad-footer{display:flex;flex-wrap:wrap;gap:8px}
+.acad-footer span{padding:5px 7px;border-radius:6px;background:#ffffff08;color:var(--text);font-size:10px}
+.acad-empty{min-height:200px;color:var(--muted)}
+.legend-heading{align-items:center}
+.legend-actions{display:grid;justify-items:end;gap:6px;min-width:145px}
+.legend-actions small{color:var(--muted);font-size:10px}
+.legend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.legend-card{display:grid;grid-template-columns:82px minmax(0,1fr);gap:10px;align-items:start;padding:10px}
+.legend-card>img{display:block;width:82px;height:112px;border-radius:8px;object-fit:cover;object-position:top;background:#123334}
+.legend-info{display:grid;gap:4px;min-width:0}
+.legend-info h3{margin:0;color:var(--sand);font:800 19px var(--font-display);line-height:1.05}
+.legend-info>small{color:var(--muted);font-size:9px;line-height:1.35}
+.legend-info .eyebrow{font-size:9px}
+.legend-meta{display:flex;justify-content:space-between;align-items:center;gap:5px}
+.legend-meta span{color:var(--text);font-size:10px}
+.legend-meta b{color:var(--gold);font:700 12px var(--font-display);white-space:nowrap}
+.legend-credit-note{margin-top:10px}.legend-credit-note p{margin:0 0 7px;color:var(--muted);font-size:11px;line-height:1.45}
+.legend-credit-note a{color:var(--gold)}
+@media(max-width:520px){
+  .acad-columns{grid-template-columns:1fr}
+  .acad-skills{grid-template-columns:1fr}
+  .acad-profile-head{gap:9px}
+  .academy-face{width:76px;height:96px}
+  .acad-player-main h2{font-size:21px}
+  .academy-view .acad-title,.legend-heading{flex-direction:column;align-items:stretch}
+  .legend-actions{justify-items:stretch;min-width:0}
+  .legend-actions .status{text-align:center}
+}
+@media(max-width:370px){
+  .acad-filters{grid-template-columns:1fr 1fr}
+  .acad-filters label:last-child{grid-column:1/-1}
+  .legend-grid{grid-template-columns:1fr}
+  .acad-profile-head{flex-direction:column}
+}

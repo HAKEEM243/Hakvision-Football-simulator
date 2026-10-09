@@ -1,7 +1,8 @@
-// Blason complémentaire. Ce fichier s’exécute après le script principal, puis rafraîchit l’écran.
+// Compléments d’écussons. Ce fichier est chargé après le script principal.
 (() => {
-  const badge = "./assets/club-crests/estudiantes.png";
-  CRESTS["Estudiantes"] = badge;
-  CRESTS["Estudiantes de La Plata"] = badge;
+  CRESTS["Estudiantes"] = "./assets/club-crests/estudiantes.png";
+  CRESTS["Estudiantes de La Plata"] = "./assets/club-crests/estudiantes.png";
+  CRESTS["Botafogo"] = "./assets/club-crests/botafogo-fr.svg";
+  CRESTS["Al Ahli"] = "./assets/club-crests/al-ahli-saudi.svg";
   if (typeof render === "function") render();
 })();
